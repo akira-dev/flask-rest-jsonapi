@@ -106,7 +106,7 @@ def get_nested_fields(schema, model_field=False):
 
     nested_fields = []
     for (key, value) in schema._declared_fields.items():
-        if isinstance(value, List) and isinstance(value.container, Nested):
+        if isinstance(value, List) and isinstance(value.inner, Nested):
             nested_fields.append(key)
         elif isinstance(value, Nested):
             nested_fields.append(key)
