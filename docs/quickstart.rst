@@ -194,13 +194,13 @@ This example provides this api:
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
 | /persons/<int:id>/computers              | POST   | computer_list    | Create a computer related to a person                 |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /persons/<int:id>/relationship/computers | GET    | person_computers | Retrieve relationships between a person and computers |
+| /persons/<int:id>/relationships/computers | GET    | person_computers | Retrieve relationships between a person and computers |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /persons/<int:id>/relationship/computers | POST   | person_computers | Create relationships between a person and computers   |
+| /persons/<int:id>/relationships/computers | POST   | person_computers | Create relationships between a person and computers   |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /persons/<int:id>/relationship/computers | PATCH  | person_computers | Update relationships between a person and computers   |
+| /persons/<int:id>/relationships/computers | PATCH  | person_computers | Update relationships between a person and computers   |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /persons/<int:id>/relationship/computers | DELETE | person_computers | Delete relationships between a person and computers   |
+| /persons/<int:id>/relationships/computers | DELETE | person_computers | Delete relationships between a person and computers   |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
 | /computers                               | GET    | computer_list    | Retrieve a collection of computers                    |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
@@ -218,13 +218,13 @@ This example provides this api:
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
 | /computers/<int:id>/owner                | DELETE | person_detail    | Delete the owner of a computer                        |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /computers/<int:id>/relationship/owner   | GET    | person_computers | Retrieve relationships between a person and computers |
+| /computers/<int:id>/relationships/owner   | GET    | person_computers | Retrieve relationships between a person and computers |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /computers/<int:id>/relationship/owner   | POST   | person_computers | Create relationships between a person and computers   |
+| /computers/<int:id>/relationships/owner   | POST   | person_computers | Create relationships between a person and computers   |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /computers/<int:id>/relationship/owner   | PATCH  | person_computers | Update relationships between a person and computers   |
+| /computers/<int:id>/relationships/owner   | PATCH  | person_computers | Update relationships between a person and computers   |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
-| /computers/<int:id>/relationship/owner   | DELETE | person_computers | Delete relationships between a person and computers   |
+| /computers/<int:id>/relationships/owner   | DELETE | person_computers | Delete relationships between a person and computers   |
 +------------------------------------------+--------+------------------+-------------------------------------------------------+
 
 .. warning::
