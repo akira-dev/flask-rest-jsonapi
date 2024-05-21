@@ -412,6 +412,27 @@ def person_list_raise_jsonapiexception():
 
 
 @pytest.fixture(scope="module")
+def person_computers_owned_relationship(person_schema, person_computers):
+    class PersonOwnedSchema(person_schema):
+        class Meta:
+            exclude = ("computers",)
+
+        computers_owned = Relationship(
+            related_view="api.computer_list",
+            related_view_kwargs={"person_id": "<person_id>"},
+            schema="ComputerSchema",
+            type_="computer",
+            many=True,
+            attribute="computers",
+        )
+
+    class PersonComputersOwnedRelationship(person_computers):
+        schema = PersonOwnedSchema
+
+    yield PersonComputersOwnedRelationship
+
+
+@pytest.fixture(scope="module")
 def person_list_raise_exception():
     class PersonList(ResourceList):
         def get(self):
@@ -537,6 +558,7 @@ def register_routes(
     computer_owner,
     string_json_attribute_person_detail,
     string_json_attribute_person_list,
+    person_computers_owned_relationship,
     request,
 ):
     api.route(person_list, "person_list", "/persons")
@@ -585,11 +607,13 @@ def register_routes(
         "string_json_attribute_person_detail",
         "/string_json_attribute_persons/<int:person_id>",
     )
+    api.route(
+        person_computers_owned_relationship,
+        "person_computers_owned",
+        "/persons/<int:person_id>/relationships/computers-owned",
+    )
 
-    if not hasattr(request, "param"):
-        api.init_app(app)
-    elif (request.param or {}).get("init_app", True):
-        api.init_app(app)
+    api.init_app(app)
 
 
 @pytest.fixture(scope="module")
@@ -1139,7 +1163,7 @@ def test_get_list_response(client, register_routes):
 
 
 class TestResourceArgs:
-    def test_resource_args(self, app):
+    def test_resource_args(self, new_app):
         class TestResource(ResourceDetail):
             """
             This fake resource always renders a constructor parameter
@@ -1152,16 +1176,16 @@ class TestResourceArgs:
             def get(self):
                 return self.constant
 
-        api = Api(app=app)
+        api = Api(app=new_app)
         api.route(
             TestResource, "resource_args", "/resource_args", resource_args=["hello!"]
         )
         api.init_app()
-        with app.test_client() as client:
+        with new_app.test_client() as client:
             rv = client.get("/resource_args")
             assert rv.json == "hello!"
 
-    def test_resource_kwargs(self, app):
+    def test_resource_kwargs(self, new_app):
         class TestResource(ResourceDetail):
             """
             This fake resource always renders a constructor parameter
@@ -1174,7 +1198,7 @@ class TestResourceArgs:
             def get(self):
                 return self.constant
 
-        api = Api(app=app)
+        api = Api(app=new_app)
         api.route(
             TestResource,
             "resource_kwargs",
@@ -1182,7 +1206,7 @@ class TestResourceArgs:
             resource_kwargs={"constant": "hello!"},
         )
         api.init_app()
-        with app.test_client() as client:
+        with new_app.test_client() as client:
             rv = client.get("/resource_kwargs")
             assert rv.json == "hello!"
 
@@ -2057,19 +2081,18 @@ def test_qs_manager():
         QSManager([], None)
 
 
-def test_api(app, person_list):
-    api = Api(app)
+def test_api(new_app, person_list):
+    api = Api(new_app)
     api.route(person_list, "person_list", "/persons", "/person_list")
     api.init_app()
 
 
-def test_api_resources(app, person_list):
+def test_api_resources(new_app, person_list):
     api = Api()
     api.route(person_list, "person_list2", "/persons", "/person_list")
-    api.init_app(app)
+    api.init_app(new_app)
 
 
-@pytest.mark.parametrize("register_routes", [{"init_app": False}], indirect=True)
 def test_relationship_containing_hyphens(
     api,
     app,
@@ -2083,7 +2106,9 @@ def test_relationship_containing_hyphens(
     """
     This is a bit of a hack. Basically, since we can no longer have two attributes that read from the same key
     in Marshmallow 3, we have to create a new Schema and Resource here that name their relationship "computers_owned"
-    in order to test hyphenation
+    in order to test hyphenation.
+
+    See `PersonOwnedSchema` and `person_computers_owned_relationship`
     """
 
     class PersonOwnedSchema(person_schema):
@@ -2101,13 +2126,6 @@ def test_relationship_containing_hyphens(
 
     class PersonComputersOwnedRelationship(person_computers):
         schema = PersonOwnedSchema
-
-    api.route(
-        PersonComputersOwnedRelationship,
-        "person_computers_owned",
-        "/persons/<int:person_id>/relationships/computers-owned",
-    )
-    api.init_app(app)
 
     response = client.get(
         "/persons/{}/relationships/computers-owned".format(person.person_id),
