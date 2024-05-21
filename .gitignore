@@ -90,4 +90,5 @@ ENV/
 
 # IDE
 .vscode/
+app.py
 
