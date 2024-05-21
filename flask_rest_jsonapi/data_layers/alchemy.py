@@ -714,7 +714,8 @@ class SqlalchemyDataLayer(BaseDataLayer):
                     current_model = getattr(current_model, field).mapper.class_
             else:
                 try:
-                    field = get_model_field(self.resource.schema, include)
+                    current_model = self.model
+                    field = getattr(current_model, include)
                 except Exception as e:
                     raise InvalidInclude(str(e))
 
