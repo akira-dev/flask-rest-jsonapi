@@ -1,6 +1,7 @@
 blinker==1.8.2
 click==8.1.7
 Flask==3.0.3
+flask_sqlalchemy==3.1.1
 iniconfig==2.0.0
 itsdangerous==2.2.0
 Jinja2==3.1.4
@@ -11,3 +12,5 @@ pytest==8.2.1
 ruff==0.4.4
 uv==0.1.45
 Werkzeug==3.0.3
+marshmallow_jsonapi==0.24.0
+six==1.16.0
