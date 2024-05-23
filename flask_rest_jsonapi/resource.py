@@ -9,7 +9,7 @@ from six import with_metaclass
 from werkzeug.wrappers import Response
 from flask import request, url_for, make_response
 from flask.wrappers import Response as FlaskResponse
-from flask.views import MethodView, MethodViewType
+from flask.views import MethodView
 from marshmallow_jsonapi.exceptions import IncorrectTypeError
 from marshmallow import ValidationError
 
@@ -24,7 +24,7 @@ from flask_rest_jsonapi.utils import JSONEncoder
 from marshmallow_jsonapi.fields import BaseRelationship
 
 
-class ResourceMeta(MethodViewType):
+class ResourceMeta(type(MethodView)):
     """Meta class to initilize the data layer and decorators of a resource"""
 
     def __new__(cls, name, bases, d):
