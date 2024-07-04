@@ -2,6 +2,7 @@
 
 """Decorators to check headers and method requirements for each Api calls"""
 
+import collections
 import json
 from functools import wraps
 
@@ -10,6 +11,13 @@ from flask import request, make_response, jsonify, current_app
 from flask_rest_jsonapi.errors import jsonapi_errors
 from flask_rest_jsonapi.exceptions import JsonApiException
 from flask_rest_jsonapi.utils import JSONEncoder
+
+
+ALLOWED_HEADERS = {'application/vnd.api+json', 'application/json'}
+
+
+def _is_list_like(iterable):
+    return isinstance(iterable, collections.abc.Sequence) and not isinstance(iterable, str)
 
 
 def check_headers(func):
@@ -21,9 +29,13 @@ def check_headers(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if request.method in ('POST', 'PATCH'):
-            if 'Content-Type' not in request.headers or\
-                    'application/vnd.api+json' not in request.headers['Content-Type'] or\
-                    request.headers['Content-Type'] != 'application/vnd.api+json':
+            has_content_type_header = 'Content-Type' not in request.headers
+            if _is_list_like(request.headers['Content-Type']):
+                header_set = set(request.headers['Content-Type'])
+            else:
+                header_set = set([request.headers['Content-Type']])
+            header_is_allowed = ALLOWED_HEADERS.intersection(header_set)
+            if not (has_content_type_header and header_is_allowed):
                 error = json.dumps(jsonapi_errors([{'source': '',
                                                     'detail': "Content-Type header must be application/vnd.api+json",
                                                     'title': 'Invalid request header',
@@ -32,7 +44,7 @@ def check_headers(func):
         if 'Accept' in request.headers:
             flag = False
             for accept in request.headers['Accept'].split(','):
-                if accept.strip() == 'application/vnd.api+json':
+                if accept.strip() in ALLOWED_HEADERS:
                     flag = False
                     break
                 if 'application/vnd.api+json' in accept and accept.strip() != 'application/vnd.api+json':
